@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "certified-neural-obstacle: certified neural approximations for parabolic obstacle problems"
+type: software
+authors:
+  - family-names: Damircheli
+    given-names: Davood
+version: 1.0.0
+date-released: 2026-10-15
+license: MIT
+repository-code: "https://github.com/DavoodDamircheli/certified-neural-obstacle"
+keywords:
+  - obstacle problem
+  - variational inequality
+  - neural networks
+  - a posteriori error estimation
+  - validated numerics

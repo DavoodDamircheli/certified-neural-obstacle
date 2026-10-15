@@ -1,0 +1,114 @@
+{
+ "protocol": "v19 Task C: controlled retraining of the ellipse multiplier (prompt docs/prompts/RUN_v19_ELLIPSE.md)",
+ "frozen": "2026-10-14, written and committed before any training of either run",
+ "status_of_results": "post_hoc relative to protocols v1/v2; no protocol row is changed; the v2 ellipse gate stays failed",
+ "hypothesis": "the squared head lambda_psi = M_psi^2 has zero gradient at M_psi = 0; once M_psi collapses the multiplier cannot recover, the network approximates the unconstrained problem, the state undershoots the obstacle on a region larger than the contact set, and the ring mismatch raises U_S",
+ "reference_run": {
+  "training_run": "results/v14_ellipse_train/20261007T202015Z",
+  "seed": 0,
+  "config_json_sha256": "1e48865f7b31aa5c0818f57f4b18f9daeb769308be390e5d76089b39a3c2e973",
+  "config_hash (sha256_json of config without hardware/git fields)": "5facff2bebd1aa84546a0180794478b725b573cff834d6b9f0ca6b43eaccd950",
+  "config": {
+   "experiment": "v14_ellipse_train",
+   "problem": "ellipse",
+   "variant": "main",
+   "kappa0": [
+    1,
+    100
+   ],
+   "seed": 0,
+   "architecture": {
+    "depth": 6,
+    "width": 64,
+    "activation": "tanh",
+    "multiplier_head": "square",
+    "mask": "16 x(1-x) y(1-y)"
+   },
+   "n_int": 20000,
+   "n_init": 2000,
+   "sobol_seeds": {
+    "train": 1000,
+    "init": 2000
+   },
+   "loss_weights": {
+    "w_r": 1.0,
+    "w_s": 1.0,
+    "w_0": 1.0,
+    "w_p": 10.0,
+    "w_c": 10.0
+   },
+   "optimizer": {
+    "adam": {
+     "lr": 0.001,
+     "steps": 5000
+    },
+    "lbfgs": {
+     "lr": 1.0,
+     "max_iter": 1,
+     "line_search": "strong_wolfe",
+     "max_steps": 300
+    }
+   },
+   "schedule_source": "identical to the disk baseline results/expanding_disk_2d/stage3_6x64_N20000_s0_k5",
+   "problem_constants": {
+    "alpha": 1.0,
+    "Lambda": 2.0,
+    "A_norm_upper": 1.0,
+    "b_norm_upper": 0.0,
+    "c_norm_upper": 0.0,
+    "kappa": 0.5,
+    "C_eq": 1.0,
+    "C_rel": 36,
+    "diffusion_only": true,
+    "reliability_formula": "weighted B = 18 U_r + 36 U_p + 12 U_c (diffusion only); uniform C_rel = 36",
+    "Lambda_justification": "c_F <= diam(Omega) = sqrt(2) on the unit square, so Lambda = 2 >= c_F^2"
+   },
+   "threads": 3,
+   "hardware": {
+    "platform": "Linux-6.8.0-90-generic-x86_64-with-glibc2.35",
+    "processor": "x86_64",
+    "cpu_count": 24,
+    "torch_threads": 3,
+    "python": "3.10.12",
+    "torch": "2.14.0+cpu",
+    "gpu": false
+   },
+   "git_commit": "6b9267197330b990a5648f925bfc65e63b40b3fe",
+   "git_dirty": false
+  }
+ },
+ "runs": {
+  "control": {
+   "seed": 3,
+   "command": "python3 -m certified_obstacle_nn.experiments.v19.multiplier_train --arm control --seed 3 --threads 3",
+   "difference_from_reference": "seed 3 (Sobol seeds train 1003, init 2003) only"
+  },
+  "intervention": {
+   "seed": 3,
+   "command": "python3 -m certified_obstacle_nn.experiments.v19.multiplier_train --arm intervention --seed 3 --threads 3",
+   "difference_from_control": "after the seeded default initialisation the output bias of M_psi is set to 1.0 (lambda_psi ~ 1 at the start); lambda_psi = M_psi^2 kept; no exact-solution information"
+  }
+ },
+ "identical_fields": "every field of reference_run.config except seed and sobol_seeds (derived from the seed), experiment, hardware, git_commit, git_dirty: architecture 6x64 tanh, square head, mask, n_int 20000, n_init 2000, loss weights (1,1,1,10,10), Adam lr 1e-3 5000 steps, L-BFGS lr 1 max_iter 1 strong Wolfe <= 300 steps with the same abort rules, kappa0 1/100, threads 3; same training budget",
+ "training_script": "experiments/v19/multiplier_train.py = experiments/v14/ellipse_train.py + arm + read-only psi_monitor.csv (max lambda_psi and fraction lambda_psi > 1e-6 on the collocation points, ||grad_psi L_train||, every step); control == ellipse_train bit for bit (tests/test_v19_multiplier_train.py)",
+ "evaluation": {
+  "stage0": "python3 -m certified_obstacle_nn.experiments.v14.ellipse_validated --seeds 3 --budgets 100000 --arb-seeds --train-run <training run> --index results/v19_C_index/<arm>.jsonl (stored run with the TM1-weighted trace partitions, 16384 cells each, as for seeds 0-2)",
+  "protocol_v1": "docs/v17_frozen_protocol.json unchanged: bash certified_obstacle_nn/scripts/v17b_protocol_v1.sh steps123 <stage0 run> 16, then step4 <partition> <stage0 run> 16 (uniform 128^3, TM1 in chunks, ONE Doerfler flux step theta 1/2 capped at 3.5e6 cells, frozen, from-scratch TM1 evaluation); validated numbers from the step-4 run",
+  "output_routing": "CERT_EXPERIMENT_PREFIX=v19_C_<arm>_ so every run directory is results/v19_C_<arm>_*/<ts>/",
+  "G_AR": "G_AR/N from the step-4 run's validated U_R, U_S, U_I, U_C (scripts/make_v19_grad_ar.g_ar, 192-bit arb, up; N_lower down)",
+  "diagnostics": "experiments/v19/substitution.py on the step-4 run (A0-A5 exact integrals on the frozen v1 partition of that network, q = 2; slices t = 0.25, 0.5, 0.75 on a 1024 x 1024 midpoint grid)"
+ },
+ "predictions": {
+  "P1": "intervention has max lambda_psi >= 1e-3 max lambda on all three slices; control does not",
+  "P2": "the area ratio {v<g} / contact set is below 1.5 on all slices for intervention, and not for control",
+  "P3": "the exact-integral U_S of intervention is below that of control",
+  "P4": "the validated v1 G_AR/N of intervention is below that of control"
+ },
+ "prediction_evaluation": {
+  "P1": "per slice t, max over the 1024^2 slice grid of lambda_psi vs of the exact lambda (slices.csv 'max lambda_psi', 'max lambda (exact)'); confirmed iff intervention passes on all three slices AND control fails on at least one",
+  "P2": "slices.csv 'area {v<g} / area contact'; confirmed iff intervention < 1.5 on all three AND control >= 1.5 on at least one",
+  "P3": "substitution.csv A0 'U_S (I)' on each network's own frozen v1 partition; confirmed iff intervention < control",
+  "P4": "confirmed iff validated G_AR/N(intervention) < G_AR/N(control)"
+ },
+ "rules": "predictions are not changed after training starts; a refuted prediction is reported with the same weight; if a run fails (non-finite loss, crash) it is reported as such and not re-run with other settings"
+}

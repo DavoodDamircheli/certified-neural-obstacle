@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Logs and archives
+*.log
+*.zip
+*.tar.gz
+
+# Local notes and assistant files
+CLAUDE.md
+.claude/
+
+# Run outputs: everything under results/ is generated locally,
+# except the small inputs and the Stefan seed-0 worked example shipped with the code.
+results/**
+!results/**/
+!results/stefan_m18/4x64/seed0/config.json
+!results/stefan_m18/4x64/seed0/weights.pt
+!results/v14_stefan_validated/20261007T192620Z/config.json
+!results/v14_stefan_validated/20261007T192620Z/summary.csv
+!results/v17_split/20261009T191750Z/config.json
+!results/v17_split/20261009T191750Z/summary.csv
+!results/v19_protocols/ellipse_multiplier_protocol.json
+!results/v20_protocols/rising1d_protocol.json
+!results/stefan_m18/4x64/seed0/true_error/true_error_nt60_nx60.json
+!results/v14_stefan_validated/20261008T160119Z/config.json
+!results/v14_stefan_validated/20261008T160119Z/summary.csv
+!results/v14_stefan_validated/20261008T160119Z/cells.npz
+!results/v14_stefan_validated/20261008T160119Z/weights.pt
+!results/stefan_m18/4x64/seed0/certification/certificate_grid1024.json

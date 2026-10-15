@@ -1,0 +1,29 @@
+{
+  "problem": "stefan",
+  "seed": 0,
+  "architecture": {
+    "width": 64,
+    "depth": 4,
+    "multiplier_head": "square"
+  },
+  "optimizer_schedule": {
+    "adam": {
+      "lr": 0.001,
+      "n_epochs": 5000
+    },
+    "lbfgs": {
+      "lr": 1.0,
+      "n_epochs_requested": 300,
+      "line_search": "strong_wolfe",
+      "outcome_reason": "line_search_stalled",
+      "n_steps_completed": 1
+    }
+  },
+  "grid_sizes": {
+    "n_interior": 5000,
+    "n_initial": 300
+  },
+  "training_time_seconds": 592.5868539319999,
+  "weights_path": "/home/davood/projects/certified_obstacle_nn/results/stefan_m18/4x64/seed0/weights.pt",
+  "history_csv_path": "/home/davood/projects/certified_obstacle_nn/results/stefan_m18/4x64/seed0/history.csv"
+}

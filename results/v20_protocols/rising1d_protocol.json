@@ -1,0 +1,86 @@
+{
+  "protocol": "v20 rising1d (non-manufactured 1-D benchmark), frozen before any reference solve, training or certification",
+  "prompt": "docs/prompts/RUN_v20_1D.md",
+  "date": "2026-10-14",
+  "frozen_at_commit_parent": "82bb3d818ed08e54f392937340838e79e7a1a1b5",
+  "problem": {
+    "id": "rising1d",
+    "Omega": "(0,1)",
+    "T": 1,
+    "A": 1,
+    "b": 0,
+    "c": 0,
+    "f": "f(t,x) = -8 sin(pi x)",
+    "u0": "u_0 = 0",
+    "g": "g(t,x) = -0.6 + 0.6 t - 2 (x - 1/2)^2   (decimals are the exact rationals -3/5, 3/5)",
+    "g_t": "3/5 exactly",
+    "g_x": "-4 (x - 1/2) exactly",
+    "g_xx": "-4 exactly",
+    "psi": "psi = d_t g - d_xx g - f = 4.6 + 8 sin(pi x) > 0",
+    "contact_multiplier": "lambda = 4.6 + 8 sin(pi x) on the contact set",
+    "closed_form_solution": "none",
+    "alpha": 1,
+    "Lambda": 1,
+    "Lambda_justification": "c_F <= diam(Omega) = 1 (Omega = (0,1)), so Lambda = 1 >= c_F^2 (Stefan value)",
+    "kappa": 1,
+    "cF2": "1/pi^2 rounded upward from a 192-bit arb ball (reliability.cF2_upper(1), the Stefan value)",
+    "mask": "B(x) = 4 x (1 - x)",
+    "triple": "u_theta = B N_theta, free flux S_phi, lambda_psi = M_psi^2 (square head)",
+    "data_enclosures": "sin(pi x) by arb ball evaluation (sin_pi / cos_pi on arb balls, outward to floats in the NumPy backend); g, g_t = 3/5, g_x, g_xx = -4 exact (rationals enclosed by bk.rational)",
+    "sanity_values_from_prompt": {"t_star": 0.11, "contact_set_t1": [0.33, 0.67], "N": 0.865, "max_lambda": 12.6}
+  },
+  "training": {
+    "copied_from": "results/stefan_m18/4x64/seed0/config.json",
+    "copied_config_file_sha256": "a800a15af431a959a7fef94d77986751f09f7ae5ae13d2c199f7705222127224",
+    "copied_config_hash_sha256_json": "225c80e835ed9d33c17d15ff3f8763834425f869be5166359051516e2cc79088",
+    "copied_checkpoint_sha256": "d3abba91ac2d97c0547790816e88dc4cb6e51a6f335eef0a8c05e23873a6e3e7",
+    "code_path": "experiments/stefan_core._train_one_run (torch.manual_seed(seed); NeuralTriple; TrainingSampler(seed); training.trainer.train), with the problem object replaced",
+    "fields": {
+      "architecture": {"width": 64, "depth": 4, "multiplier_head": "square", "activation": "tanh", "x_rescale": null},
+      "optimizer_schedule": {
+        "adam": {"lr": 0.001, "n_epochs": 5000},
+        "lbfgs": {"lr": 1.0, "n_epochs_requested": 300, "line_search": "strong_wolfe", "max_iter": 1}
+      },
+      "grid_sizes": {"n_interior": 5000, "n_initial": 300},
+      "loss_weights": {"w_r": 1.0, "w_s": 1.0, "w_0": 1.0, "w_p": 1.0, "w_c": 1.0},
+      "dtype": "float64"
+    },
+    "seeds": [0, 1, 2],
+    "only_differences": ["problem data functions (f, g, u0) and problem id 'rising1d'"],
+    "monitoring": "read-only, every 500 Adam steps (and after L-BFGS): loss components (history.csv keeps every step), max lambda_psi and fraction of the 5000 interior collocation points with lambda_psi > 1e-6 (no_grad forward of the multiplier net; no RNG use); test: monitor on/off gives bit-identical weights",
+    "rule": "no seed is discarded or retrained"
+  },
+  "certification": {
+    "pipeline": "Stefan pipeline unchanged: TM1 enclosures (certification/enclose/engine.TripleEncloser, mean_value False), per-term split (engine.split_terms), NumPy outward backend (intervals_np), Arb final reduction (upper_sum.reduce_upper_sums, 128-bit arb dot, upper endpoint), direct bounds in 192-bit arb (reliability.direct_projected_bounds)",
+    "adapter": "new Rising1DAdapter (data as TM1s, sin(pi x) by _taylor1 with arb point/range enclosures of sin_pi, cos_pi)",
+    "partitions": {
+      "volume": "uniform dyadic n x n on (0,1)^2, n in {512, 1024} (upper_sum.uniform_2d)",
+      "traces": "uniform 1-D, trace_n = 4096 cells at t = 0 and t = T (as Stefan)",
+      "headline": "1024^2; 512^2 rows reported as well"
+    },
+    "backend": "numpy (validated outward float64); batch 512; arb reduction precision 128 bits for the sums (as Stefan), 192 bits for every derived bound",
+    "lower_sums": "new output (Task 2) enabled for rising1d: L_tau = sum |K| inf_K tau^2, L_gradvhat = sum |K| inf_K (d_x v_hat)^2, lower endpoints rounded downward, arb sum, lower endpoint",
+    "slack_quadrature": "float64 Gauss q = 3 per axis per cell on the same partition (as the Stefan split rows); t = 0 trace q = 3"
+  },
+  "reported_quantities": {
+    "validated": ["F_dir = sqrt(D + L)", "G_dir = sqrt(L) + sqrt(D + L)", "G_AR = (a + sqrt(a^2 + 2(U_0 + 2 U_c)))/2, a = sqrt(U_S) + sqrt(cF2 U_R)", "E_dir (theta scan)", "N_lo = max{sqrt(L_tau) - F_dir, sqrt(L_gradvhat) - G_AR} (validated_lower_bound, 192-bit arb, rounded down)"],
+    "ratios": ["F_dir/N_lo", "G_dir/N_lo", "G_AR/N_lo  (rounded up; 'not positive' if N_lo <= 0)"],
+    "per_term": "U_R, U_S, U_0 (= U_I), U_c; shares of F_dir^2 (U_S, U_0, 2U_c, L); slacks U/I (float64 integral of the same density on the same partition)",
+    "wall_times": "leaf eval, trace eval, reduction, total",
+    "diagnostics_task4": "E(v_hat), ||sigma_h - tau||, ||d_x(u_h - v_hat)||, ||u_h - v_hat||_{L2(Q)} (each also / N_ref), effectivities F_dir/||sigma_h - tau|| and G_AR/||d_x(u_h - v_hat)||, N_lo/N_ref; contact table at t in {0.15, 0.25, 0.5, 0.75, 1}; post-hoc multiplier exact-integral G_AR/N_ref (trained lambda_psi and mu*, v19 A2 definition) on the 1024^2 partitions (q = 2 as v19); figure data 512 x 512 midpoint grid, seed 0",
+    "E_v_hat_definition": "E(v_hat) = sqrt(||sigma_h - tau||^2 + ||d_x(u_h - v_hat)||^2 + ||(u_h - v_hat)(T)||^2) with sigma_h = -d_x u_h (diagnostic_float64; reference)",
+    "reference_status": "every quantity computed from the finite-difference reference is diagnostic_float64 and labelled reference; reference uncertainty = |fine - coarse grid value|"
+  },
+  "reference_solver": {
+    "scheme": "implicit Euler in time, P1 FEM with mass lumping (= 3-point FD) in space, primal-dual active set per step (c = 1e0 in the active-set rule lambda + c (g - u) > 0)",
+    "grids": [[2048, 2048], [4096, 4096]],
+    "reference": "finer grid (4096); uncertainty = difference between grids",
+    "interpolation_for_diagnostics": "u_h: continuous piecewise linear in x, piecewise linear in t between time levels (u_h(0) = u_0)"
+  },
+  "pre_specified_expectation": {
+    "statement": "at 1024^2, F_dir/N_lo < 1/2 and G_AR/N_lo < 1/2 on all three seeds",
+    "is_gate": false,
+    "note": "all seeds are reported whatever happens"
+  },
+  "rule": "no further budgets, no adaptive refinement, no retraining in this task; problem data, training configuration, partitions and reported quantities are not changed after any result is seen; any forced change is a D-number and all three seeds are rerun under the changed protocol, both versions reported"
+}
