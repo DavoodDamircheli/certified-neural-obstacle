@@ -7,6 +7,17 @@ guaranteed upper bound on the error, computed with validated (outward-rounded) a
 alone. It does not need the exact solution or a reference solver. Every reported bound carries a status that says
 exactly what kind of guarantee it is.
 
+<p align="center">
+  <img src="figures/disk_solution.png" width="560" alt="Expanding-disk benchmark: exact solution, network errors and contact multiplier at t = 0.25, 0.5, 0.75">
+</p>
+
+*Expanding-disk benchmark (2 + 1 dimensions), trained network (seed 0) at $`t = 0.25, 0.5, 0.75`$. Rows, top to
+bottom: the exact state $`u`$; the network error $`|u-u_\theta|`$; the error of the certified projected output
+$`|u-\hat v|`$; the exact contact multiplier $`\lambda`$; the network multiplier $`\lambda_\psi`$; and
+$`|\lambda-\lambda_\psi|`$. The dashed circle is the exact free boundary. The projection $`\hat v = \max(v,g)`$
+removes the error on the contact set, so what remains sits inside the disk. The multiplier error is concentrated
+on the free boundary. ([PDF](figures/disk_solution.pdf))*
+
 ---
 
 ## 1. Problem class
