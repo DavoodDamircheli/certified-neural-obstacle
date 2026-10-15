@@ -1,5 +1,7 @@
 # certified-neural-obstacle
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23405803.svg)](https://doi.org/10.5281/zenodo.23405803)
+
 **Certified neural approximations for parabolic obstacle problems.**
 
 This repository trains neural networks for parabolic obstacle problems and then certifies them. The certificate is a
@@ -197,7 +199,9 @@ directories that the remaining drivers and data-dependent tests read.
 
 ## 9. Citation
 
-If you use this code, please cite it with the metadata in `CITATION.cff`. The space-time finite element framework
+If you use this code, please cite it: D. Damircheli, *certified-neural-obstacle: certified neural approximations
+for parabolic obstacle problems*, Zenodo, 2026, doi:[10.5281/zenodo.23405803](https://doi.org/10.5281/zenodo.23405803)
+(all versions; v1.0.0 is doi:[10.5281/zenodo.23405804](https://doi.org/10.5281/zenodo.23405804)). Metadata: `CITATION.cff`. The space-time finite element framework
 this project builds on is:
 
 > J. J. Carvajal, D. Damircheli, T. Führer, F. Fuica, and M. Karkulik,

@@ -7,6 +7,14 @@ authors:
     given-names: Davood
     orcid: "https://orcid.org/0000-0003-3099-6382"
 version: 1.0.0
+doi: 10.5281/zenodo.23405803
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23405803
+    description: Concept DOI (all versions)
+  - type: doi
+    value: 10.5281/zenodo.23405804
+    description: Version 1.0.0
 date-released: 2026-10-15
 license: MIT
 repository-code: "https://github.com/DavoodDamircheli/certified-neural-obstacle"
